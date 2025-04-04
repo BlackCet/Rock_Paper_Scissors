@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        .choices img { width: 80px; cursor: pointer; transition: transform 0.2s; }
+        .choices img:hover { transform: scale(1.2); }
+        .battle-container {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            height: 120px;
+            position: relative;
+        }
+        .battle-container img {
+            width: 100px;
+            transition: transform 0.5s ease-in-out;
+            position: absolute;
+        }
+        .move-left { transform: translateX(-50px); }
+        .move-right { transform: translateX(50px); }
+        .boom {
+            animation: explode 0.5s ease-in-out forwards;
+        }
+        .winner-glow {
+            box-shadow: 0 0 20px 5px gold;
+            border-radius: 50%;
+        }
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        Swal.fire({
+            title: 'Enter number of rounds',
+            input: 'number',
+            inputAttributes: { min: 1, max: 10 },
+            showCancelButton: false,
+            confirmButtonText: 'Start Game',
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                totalRounds = parseInt(result.value);
+                document.getElementById('total-rounds').innerText = totalRounds;
+                document.querySelector('.game-box').classList.remove('hidden');
+            }
+        });
+    </script>
+    <div class="game-box hidden">
+        <h1>Rock Paper Scissors</h1>
+        <div class="choices">
+            <img src="rock.png" onclick="playGame('rock')">
+            <img src="paper.png" onclick="playGame('paper')">
+            <img src="scissors.png" onclick="playGame('scissors')">
+        </div>
+        <div class="battle-container">
+            <img id="player-choice" src="" class="move-left">
+            <img id="computer-choice" src="" class="move-right">
+        </div>
+        <h2 class="result" id="result">Make your move!</h2>
+        <div class="score-container">
+            <p>YOU: <span id="player-score">0</span> | ME: <span id="computer-score">0</span></p>
+            <p>Round: <span id="current-round">0</span> / <span id="total-rounds">0</span></p>
+        </div>
+    </div>
+    <script>
+        let playerScore = 0, computerScore = 0, totalRounds = 0, currentRound = 0;
+        function playGame(playerChoice) {
+            if (currentRound >= totalRounds) return;
+            currentRound++;
+            document.getElementById('current-round').innerText = currentRound;
+            const choices = ['rock', 'paper', 'scissors'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            let playerImg = document.getElementById('player-choice');
+            let computerImg = document.getElementById('computer-choice');
+            
+            playerImg.src = playerChoice + '.png';
+            computerImg.src = computerChoice + '.png';
+
+            playerImg.classList.remove('boom', 'winner-glow');
+            computerImg.classList.remove('boom', 'winner-glow');
+
+            setTimeout(() => {
+                if (playerChoice === computerChoice) {
+                    document.getElementById('result').innerText = "It's a tie!";
+                } else if (
+                    (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                    (playerChoice === 'paper' && computerChoice === 'rock') ||
+                    (playerChoice === 'scissors' && computerChoice === 'paper')
+                ) {
+                    document.getElementById('result').innerText = "You win this round!";
+                    computerImg.classList.add('boom');
+                    playerImg.classList.add('winner-glow');
+                    playerScore++;
+                } else {
+                    document.getElementById('result').innerText = "You lose this round!";
+                    playerImg.classList.add('boom');
+                    computerImg.classList.add('winner-glow');
+                    computerScore++;
+                }
+                document.getElementById('player-score').innerText = playerScore;
+                document.getElementById('computer-score').innerText = computerScore;
+                if (currentRound === totalRounds) setTimeout(endGame, 1000);
+            }, 1000);
+        }
+        function endGame() {
+    let message, link;
+    if (playerScore > computerScore) {
+        message = "You won! 🎉 Connect with me on GitHub!";
+        link = "https://github.com/BlackCet"; 
+    } else if (playerScore < computerScore) {
+        message = "You lost! 😢 Let's connect on LinkedIn!";
+        link = "https://www.linkedin.com/in/anushka-prajapati-415b68284/"; 
+    } else {
+        message = "It's a tie! Well played!";
+        link = null;
+    }
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Game Over!',
+        text: message,
+        showCancelButton: link !== null,
+        confirmButtonText: link ? "Connect Now" : "OK",
+        cancelButtonText: "Maybe Later"
+    }).then((result) => {
+        if (result.isConfirmed && link) {
+            window.open(link, "_blank");
+        }
+    });
+}
+
+    </script>
+</body>
+</html>
